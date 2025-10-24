@@ -21,18 +21,18 @@
             }
           ],
           "description": "The name in the global object.",
-          "link": "https://github.com/webpack-contrib/expose-loader#globalname"
+          "link": "https://github.com/webpack/expose-loader#globalname"
         },
         "moduleLocalName": {
           "type": "string",
           "description": "he name of method/variable/etc of the module (the module must export it).",
-          "link:": "https://github.com/webpack-contrib/expose-loader#modulelocalname",
+          "link:": "https://github.com/webpack/expose-loader#modulelocalname",
           "minLength": 1
         },
         "override": {
           "type": "boolean",
           "description": "Configure loader to override the existing value in the global object.",
-          "link": "https://github.com/webpack-contrib/expose-loader#override"
+          "link": "https://github.com/webpack/expose-loader#override"
         }
       },
       "required": ["globalName"]
@@ -43,7 +43,7 @@
     "globalObject": {
       "type": "string",
       "description": "Global object used as global context",
-      "link": "https://github.com/webpack-contrib/expose-loader#globalObject"
+      "link": "https://github.com/webpack/expose-loader#globalObject"
     },
     "exposes": {
       "anyOf": [
@@ -71,7 +71,7 @@
         }
       ],
       "description": "List of exposes.",
-      "link": "https://github.com/webpack-contrib/expose-loader#exposes"
+      "link": "https://github.com/webpack/expose-loader#exposes"
     }
   },
   "anyOf": [{ "required": ["exposes"] }]
