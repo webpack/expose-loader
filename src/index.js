@@ -31,8 +31,8 @@ export default function loader() {
    * Workaround until module.libIdent() in webpack/webpack handles this correctly.
    *
    * Fixes:
-   * - https://github.com/webpack-contrib/expose-loader/issues/55
-   * - https://github.com/webpack-contrib/expose-loader/issues/49
+   * - https://github.com/webpack/expose-loader/issues/55
+   * - https://github.com/webpack/expose-loader/issues/49
    */
   this._module.userRequest = getNewUserRequest(this._module.userRequest);
 
@@ -40,7 +40,7 @@ export default function loader() {
    * Adding side effects
    *
    * Fixes:
-   * - https://github.com/webpack-contrib/expose-loader/issues/120
+   * - https://github.com/webpack/expose-loader/issues/120
    */
   if (this._module.factoryMeta) {
     this._module.factoryMeta.sideEffectFree = false;
