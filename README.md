@@ -13,9 +13,78 @@
 
 # expose-loader
 
+> [!WARNING]
+>
+> **This loader is deprecated.** Assigning a module to the global object needs no
+> loader — see the [migration guide](#deprecation) below. The loader still works,
+> but it will not get new features.
+
 The `expose-loader` loader allows to expose a module (either in whole or in part) to global object (`self`, `window` and `global`).
 
 For compatibility tips and examples, check out [Shimming](https://webpack.js.org/guides/shimming/) guide in the official documentation.
+
+## Deprecation
+
+Where the file that needs the global is yours, the assignment is one line and
+nothing else is involved:
+
+```js
+import { jQuery as $ } from "jquery";
+
+globalThis.$ = globalThis.jQuery = $;
+```
+
+Where it is not — a dependency you cannot edit — webpack appends that same line
+for you before it parses the file, through `NormalModule`'s `processResult`
+hook. The plugin that does it is about 20 lines, and webpack's
+[expose-global example](https://github.com/webpack/webpack/tree/main/examples/expose-global)
+is a working copy of it:
+
+**webpack.config.js**
+
+```js
+const ExposeGlobalPlugin = require("./expose-global-plugin");
+
+module.exports = {
+  plugins: [
+    new ExposeGlobalPlugin([
+      // a script: the exports object is what a global consumer reaches for
+      [
+        /jquery[\\/]dist[\\/]jquery\.js$/,
+        "globalThis.$ = globalThis.jQuery = module.exports;",
+      ],
+      // an ES module: the export is a binding in scope, and stays analyzable
+      [
+        /jquery[\\/]dist[\\/]jquery\.module\.js$/,
+        "globalThis.$ = globalThis.jQuery = jQuery;",
+      ],
+    ]),
+  ],
+};
+```
+
+|                  Loader                   |                    Instead                    |
+| :---------------------------------------: | :-------------------------------------------: |
+|            `test` of the rule             |   the pattern the appended code is keyed by   |
+|                 `exposes`                 |           the assignment you append           |
+|              `globalObject`               | whatever the appended line names, i.e. `self` |
+| inline (`expose-loader?exposes=$!jquery`) |    no equivalent, assign in your own code     |
+
+Neither form wraps the module in a second one, which is what the loader has to
+do — and what these are about:
+
+- [#25](https://github.com/webpack/expose-loader/issues/25) — a module coming
+  from `DllPlugin` is exposed by appending to it in the build that owns it.
+- [#227](https://github.com/webpack/expose-loader/issues/227) — an ES module's
+  exports are in scope as bindings, so any of them can be assigned as it is.
+- [#256](https://github.com/webpack/expose-loader/issues/256) — nothing changes
+  what the module exports, so `import $ from "jquery"` still gives the default
+  export.
+
+Two things to keep in mind, whichever form you use: the assignment runs when the
+module is evaluated, so something has to import it; and where the file sits in a
+package marked `"sideEffects": false`, add `{ test: /…/, sideEffects: true }` to
+`module.rules`, or the import is dropped before it can assign.
 
 ## Getting Started
 
