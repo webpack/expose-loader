@@ -36,14 +36,38 @@ globalThis.$ = globalThis.jQuery = $;
 
 Where it is not — a dependency you cannot edit — webpack appends that same line
 for you before it parses the file, through `NormalModule`'s `processResult`
-hook. The plugin that does it is about 20 lines, and webpack's
+hook. The plugin that does it is small enough to keep in the configuration, and
+webpack's
 [expose-global example](https://github.com/webpack/webpack/tree/main/examples/expose-global)
 is a working copy of it:
 
 **webpack.config.js**
 
 ```js
-const ExposeGlobalPlugin = require("./expose-global-plugin");
+const { NormalModule } = require("webpack");
+
+class ExposeGlobalPlugin {
+  constructor(exposes) {
+    this.exposes = exposes;
+  }
+
+  apply(compiler) {
+    compiler.hooks.compilation.tap("ExposeGlobalPlugin", (compilation) => {
+      NormalModule.getCompilationHooks(compilation).processResult.tap(
+        "ExposeGlobalPlugin",
+        (result, module) => {
+          const [source, sourceMap] = result;
+          for (const [test, code] of this.exposes) {
+            test.lastIndex = 0;
+            if (!module.resource || !test.test(module.resource)) continue;
+            return [`${source}\n${code}`, sourceMap, undefined];
+          }
+          return result;
+        },
+      );
+    });
+  }
+}
 
 module.exports = {
   plugins: [
